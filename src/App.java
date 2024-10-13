@@ -1,9 +1,28 @@
+/**
+ * The {App} class provides methods to process text by filtering 
+ * words based on specific criteria. It includes functionality to remove 
+ * words of a specified length that start with a consonant.
+ */
 public class App {
+    
+    /**
+     * Checks if the specified letter is a consonant.
+     *
+     * @param letter the letter to check
+     * @return {true} if the letter is a consonant, {false} otherwise
+     */
     private static boolean isConsonant(Letter letter) {
-        char c = letter.getValue();
-        return "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ".indexOf(c) != -1;
+        return letter.isConsonant();
     }
 
+    /**
+     * Removes words of a specified length that start with a consonant from the text.
+     *
+     * @param text the text from which to remove words
+     * @param wordLength the length of words to remove
+     * @return a new {Text} object containing the filtered sentences
+     * @throws IllegalArgumentException if the input text is null or if the word length is less than or equal to 0
+     */
     public static Text removeWords(Text text, int wordLength) {
         if (text == null) {
             throw new IllegalArgumentException("Input text cannot be null.");
@@ -37,6 +56,13 @@ public class App {
         return result;
     }
 
+    /**
+     * Parses the input text and creates a {Sentence} object 
+     * representing it.
+     *
+     * @param inputText the input text to parse
+     * @return a {Sentence} object containing the parsed words and punctuation
+     */
     private static Sentence parseInputText(String inputText) {
         Sentence sentence = new Sentence(10);
         Word currentWord = new Word(10);
@@ -65,6 +91,12 @@ public class App {
         return sentence;
     }
 
+    /**
+     * The main method serves as the entry point for the application.
+     * It processes the input text and removes words based on the specified criteria.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         try {
             String inputText = "lorem ipsum dolor sit amet consectetur adipiscing, sed diam, non commod tempor. Ut enim ad minim veniam, quis nostr? dolor in cupa, qui - officia";
@@ -72,6 +104,10 @@ public class App {
 
             if (inputText == null || inputText.trim().isEmpty()) {
                 throw new IllegalArgumentException("Input text cannot be null or empty.");
+            }
+
+            if (wordLength <= 0) {
+                throw new IllegalArgumentException("Word length must be greater than 0.");
             }
 
             Text text = new Text(10);
