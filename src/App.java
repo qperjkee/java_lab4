@@ -1,5 +1,6 @@
 public class App {
-    private static boolean isConsonant(char c) {
+    private static boolean isConsonant(Letter letter) {
+        char c = letter.getValue();
         return "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ".indexOf(c) != -1;
     }
 
@@ -12,44 +13,21 @@ public class App {
         }
 
         Text result = new Text(10);
-        Word currentWord = new Word(10);
         Sentence currentSentence = new Sentence(10);
 
-        StringBuffer textBuffer = new StringBuffer(text.toString());
-        int start = 0;
-        boolean inWord = false;
-
-        for (int i = 0; i < textBuffer.length(); i++) {
-            char c = textBuffer.charAt(i);
-            if (Character.isWhitespace(c)) {
-                if (inWord) {
-                    processWord(textBuffer.substring(start, i), currentWord, currentSentence, result, wordLength);
-                    inWord = false;
-                }
-            } else if (".,!?".indexOf(c) != -1) {
-                if (inWord) {
-                    processWord(textBuffer.substring(start, i), currentWord, currentSentence, result, wordLength);
-                    inWord = false;
-                }
-
-                if (!currentSentence.isEmpty()) {
-                    if (currentSentence.getLastElement() instanceof Word) {
-                        Word lastWord = (Word) currentSentence.getLastElement();
-                        lastWord.addLetter(new Letter(c));
-                    } else {
-                        currentSentence.addElement(new Punctuation(c));
+        for (int i = 0; i < text.length(); i++) {
+            Sentence sentence = text.getSentence(i);
+            for (int j = 0; j < sentence.length(); j++) {
+                Object element = sentence.getElement(j);
+                if (element instanceof Word) {
+                    Word currentWord = (Word) element;
+                    if (!(currentWord.length() == wordLength && isConsonant(currentWord.getFirstLetter()))) {
+                        currentSentence.addElement(currentWord);
                     }
-                }
-            } else {
-                if (!inWord) {
-                    start = i;
-                    inWord = true;
+                } else if (element instanceof Punctuation) {
+                    currentSentence.addElement(element);
                 }
             }
-        }
-
-        if (inWord) {
-            processWord(textBuffer.substring(start), currentWord, currentSentence, result, wordLength);
         }
 
         if (!currentSentence.isEmpty()) {
@@ -59,17 +37,58 @@ public class App {
         return result;
     }
 
-    private static void processWord(String word, Word currentWord, Sentence currentSentence, Text result, int wordLength) {
-        currentWord = new Word(word.length());
-        for (int j = 0; j < word.length(); j++) {
-            currentWord.addLetter(new Letter(word.charAt(j)));
+    private static Sentence parseInputText(String inputText) {
+        Sentence sentence = new Sentence(10);
+        Word currentWord = new Word(10);
+
+        for (int i = 0; i < inputText.length(); i++) {
+            char c = inputText.charAt(i);
+            if (Character.isWhitespace(c)) {
+                if (currentWord.length() > 0) {
+                    sentence.addElement(currentWord);
+                    currentWord = new Word(10);
+                }
+            } else if (".,!?".indexOf(c) != -1) {
+                if (currentWord.length() > 0) {
+                    sentence.addElement(currentWord);
+                    currentWord = new Word(10);
+                }
+                sentence.addElement(new Punctuation(c));
+            } else {
+                currentWord.addLetter(new Letter(c));
+            }
         }
-        if (!(currentWord.length() == wordLength && isConsonant(currentWord.getFirstLetter().getValue()))) {
-            currentSentence.addElement(currentWord);
+
+        if (currentWord.length() > 0) {
+            sentence.addElement(currentWord);
         }
+        return sentence;
     }
 
     public static void main(String[] args) {
+        try {
+            String inputText = "lorem ipsum dolor sit amet consectetur adipiscing, sed diam, non commod tempor. Ut enim ad minim veniam, quis nostr? dolor in cupa, qui - officia";
+            int wordLength = 4;
 
+            if (inputText == null || inputText.trim().isEmpty()) {
+                throw new IllegalArgumentException("Input text cannot be null or empty.");
+            }
+
+            Text text = new Text(10);
+            Sentence sentence = parseInputText(inputText);
+
+            if (!sentence.isEmpty()) {
+                text.addSentence(sentence);
+            }
+
+            Text processedText = removeWords(text, wordLength);
+
+            System.out.println("Original text: " + inputText);
+            System.out.println("Filtered text: " + processedText.toString());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred in main method: " + e.getMessage());
+        }
     }
 }

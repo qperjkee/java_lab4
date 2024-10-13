@@ -16,6 +16,17 @@ class Text {
         sentences[size++] = sentence;
     }
 
+    public int length() {
+        return size;
+    }
+
+    public Sentence getSentence(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+        }
+        return sentences[index];
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

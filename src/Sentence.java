@@ -29,13 +29,34 @@ class Sentence {
         }
     }
 
+    public int length() {
+        return size;
+    }
+
+    public Object getElement(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+        }
+        return elements[index];
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < size; i++) {
             sb.append(elements[i].toString());
+            
             if (elements[i] instanceof Word) {
-                sb.append(" ");
+
+                if (i + 1 < size && !(elements[i + 1] instanceof Punctuation)) {
+                    sb.append(" ");
+                }
+            } 
+
+            else if (elements[i] instanceof Punctuation) {
+                if (i + 1 < size) {
+                    sb.append(" ");
+                }
             }
         }
         return sb.toString().trim();
